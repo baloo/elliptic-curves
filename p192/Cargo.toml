@@ -32,7 +32,7 @@ hex-literal = "1"
 primeorder = { version = "=0.14.0-pre.2", features = ["dev"], path = "../primeorder" }
 
 [features]
-default = ["arithmetic", "ecdsa", "pem", "std"]
+default = ["arithmetic", "digest", "ecdsa", "pem", "std"]
 alloc = ["elliptic-curve/alloc", "primeorder?/alloc"]
 std = ["alloc", "elliptic-curve/std"]
 
