@@ -391,15 +391,15 @@ impl MulAssign<&Scalar> for ProjectivePoint {
 mod tests {
     use super::*;
     use crate::arithmetic::{ProjectivePoint, Scalar};
-    use elliptic_curve::{Field, Group};
-    use getrandom::{SysRng, rand_core::TryRngCore};
+    use elliptic_curve::Generate;
 
     #[test]
+    #[cfg(feature = "getrandom")]
     fn test_lincomb() {
-        let x = ProjectivePoint::random(&mut SysRng.unwrap_mut());
-        let y = ProjectivePoint::random(&mut SysRng.unwrap_mut());
-        let k = Scalar::random(&mut SysRng.unwrap_mut());
-        let l = Scalar::random(&mut SysRng.unwrap_mut());
+        let x = ProjectivePoint::generate();
+        let y = ProjectivePoint::generate();
+        let k = Scalar::generate();
+        let l = Scalar::generate();
 
         let reference = x * k + y * l;
         let test = ProjectivePoint::lincomb(&[(x, k), (y, l)]);
@@ -407,20 +407,21 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "getrandom")]
     fn test_mul_by_generator() {
-        let k = Scalar::random(&mut SysRng.unwrap_mut());
+        let k = Scalar::generate();
         let reference = ProjectivePoint::GENERATOR * k;
         let test = ProjectivePoint::mul_by_generator(&k);
         assert_eq!(reference, test);
     }
 
-    #[cfg(feature = "alloc")]
+    #[cfg(all(feature = "alloc", feature = "getrandom"))]
     #[test]
     fn test_lincomb_slice() {
-        let x = ProjectivePoint::random(&mut SysRng.unwrap_mut());
-        let y = ProjectivePoint::random(&mut SysRng.unwrap_mut());
-        let k = Scalar::random(&mut SysRng.unwrap_mut());
-        let l = Scalar::random(&mut SysRng.unwrap_mut());
+        let x = ProjectivePoint::generate();
+        let y = ProjectivePoint::generate();
+        let k = Scalar::generate();
+        let l = Scalar::generate();
 
         let reference = x * k + y * l;
         let points_and_scalars = vec![(x, k), (y, l)];

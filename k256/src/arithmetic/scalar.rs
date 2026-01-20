@@ -16,7 +16,7 @@ use core::{
 };
 use elliptic_curve::{
     Curve, Error, Generate, ScalarValue,
-    bigint::{ArrayEncoding, Integer, Limb, U256, U512, Word, modular::Retrieve},
+    bigint::{ArrayEncoding, Limb, U256, U512, Word, modular::Retrieve},
     ctutils,
     ff::{self, Field, FromUniformBytes, PrimeField},
     ops::{Invert, Reduce, ReduceNonZero},
@@ -835,7 +835,7 @@ mod tests {
         ops::{BatchInvert, Reduce},
         scalar::IsHigh,
     };
-    use getrandom::{SysRng, rand_core::TryRngCore};
+    use getrandom::SysRng;
     use num_bigint::{BigUint, ToBigUint};
     use num_traits::Zero;
     use proptest::prelude::*;
@@ -990,9 +990,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "getrandom")]
     fn batch_invert_array() {
-        let k: Scalar = Scalar::random(&mut SysRng.unwrap_mut());
-        let l: Scalar = Scalar::random(&mut SysRng.unwrap_mut());
+        let k: Scalar = Scalar::generate();
+        let l: Scalar = Scalar::generate();
 
         let expected = [k.invert().unwrap(), l.invert().unwrap()];
         assert_eq!(
@@ -1002,10 +1003,10 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "alloc")]
+    #[cfg(all(feature = "alloc", feature = "getrandom"))]
     fn batch_invert() {
-        let k: Scalar = Scalar::random(&mut SysRng.unwrap_mut());
-        let l: Scalar = Scalar::random(&mut SysRng.unwrap_mut());
+        let k: Scalar = Scalar::generate();
+        let l: Scalar = Scalar::generate();
 
         let expected = vec![k.invert().unwrap(), l.invert().unwrap()];
         let scalars = vec![k, l];
@@ -1059,10 +1060,9 @@ mod tests {
         assert_eq!((a - &a).is_zero().unwrap_u8(), 1);
     }
 
-    #[cfg(feature = "getrandom")]
     #[test]
     fn try_generate_from_rng() {
-        let a = Scalar::generate();
+        let a = Scalar::try_generate_from_rng(&mut SysRng).unwrap();
         // just to make sure `a` is not optimized out by the compiler
         assert_eq!((a - &a).is_zero().unwrap_u8(), 1);
     }
